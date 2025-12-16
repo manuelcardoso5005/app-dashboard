@@ -1,8 +1,10 @@
-import 'package:app/models/chart_data.dart';
+import 'package:app/models/chart_model.dart';
 import 'package:app/models/product.dart';
 import 'package:app/models/recent_activity.dart';
 import 'package:flutter/material.dart';
+import 'package:app/data/pages.dart';
 import 'package:flutter/rendering.dart';
+//import 'package:flutter/rendering.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,31 +17,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
   bool _isDarkMode = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  final List<String> _pages = [
-    'Dashboard',
-    'Analytics',
-    'Products',
-    'Orders',
-    'Customers',
-    'Settings',
-    'Profile',
-  ];
-
-  /*final List<ChartData> _chartData = [
-    ChartData('Jan', 30),
-    ChartData('Fev', 42),
-    ChartData('Mar', 54),
-    ChartData('Abr', 20),
-    ChartData('Mai', 76),
-    ChartData('Jun', 35),
-    ChartData('Jul', 90),
-    ChartData('Ago', 45),
-    ChartData('Set', 60),
-    ChartData('Oct', 80),
-    ChartData('Nov', 55),
-    ChartData('Dez', 70),
-  ];*/
 
   final List<ChartData> _chartData = [
     ChartData('Seg', 45, 30),
@@ -123,6 +100,32 @@ class _DashboardScreenState extends State<DashboardScreen> {
       child: Scaffold(
         key: _scaffoldKey,
         drawer: _buildDrawer(context),
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            bool isMobile = constraints.maxWidth < 600;
+            bool isTablet =
+                constraints.maxWidth >= 601 && constraints.maxWidth < 900;
+            bool isDesktop = constraints.maxWidth >= 900;
+            return Row(
+              children: [
+                if (!isMobile)
+                  Container(
+                    width: isDesktop ? 260 : 80,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: _isDarkMode
+                            ? [Colors.grey[900]!, Colors.grey[850]!]
+                            : [Colors.blue[900]!, Colors.blue[750]!],
+                      ),
+                    ),
+                    child: _buildSideNavigation(isDesktop),
+                  ),
+              ],
+            );
+          },
+        ),
         bottomNavigationBar: LayoutBuilder(
           builder: (context, constraints) {
             if (constraints.maxWidth < 600) {
@@ -167,6 +170,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 label: Text("Novo Pedido"),
                 icon: Icon(Icons.add),
                 backgroundColor: Colors.blue[700],
+                foregroundColor: Colors.white,
               )
             : null,
       ),
@@ -194,11 +198,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           // Lista de páginas do menu
           Expanded(
             child: ListView.builder(
-              itemCount: _pages.length,
+              itemCount: pages.length,
               itemBuilder: (context, index) {
                 return ListTile(
                   leading: Icon(_getIcon(index)),
-                  title: Text(_pages[index]),
+                  title: Text(pages[index]),
                   selected: _selectedIndex == index,
                   onTap: () {
                     setState(() {
@@ -228,6 +232,35 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildSideNavigation(bool isDesktop) {
+    return Column(
+      children: [
+        SizedBox(height: 30),
+        Container(
+          padding: EdgeInsets.all(10),
+          child: CircleAvatar(
+            radius: isDesktop ? 40 : 25,
+            backgroundImage: NetworkImage(
+              'https://i.ibb.co/8gzs7C4g/woman.png',
+            ),
+          ),
+        ),
+        if (isDesktop) ...[
+          SizedBox(height: 10),
+          Text(
+            'Manuel Cardoso',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Text('Admn', style: TextStyle(color: Colors.white70, fontSize: 12)),
+        ],
+      ],
     );
   }
 

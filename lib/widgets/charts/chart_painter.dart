@@ -1,4 +1,4 @@
-import 'package:app/models/chart_data.dart';
+import 'package:app/models/chart_model.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
 
