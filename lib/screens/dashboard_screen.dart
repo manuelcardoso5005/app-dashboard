@@ -2,6 +2,7 @@ import 'package:app/models/chart_data.dart';
 import 'package:app/models/product.dart';
 import 'package:app/models/recent_activity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -15,7 +16,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   bool _isDarkMode = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  final List<String> pages = [
+  final List<String> _pages = [
     'Dashboard',
     'Analytics',
     'Products',
@@ -119,7 +120,56 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     return Theme(
       data: _isDarkMode ? ThemeData.dark() : ThemeData.light(),
-      child: Scaffold(key: _scaffoldKey, drawer: _buildDrawer(context)),
+      child: Scaffold(
+        key: _scaffoldKey,
+        drawer: _buildDrawer(context),
+        bottomNavigationBar: LayoutBuilder(
+          builder: (context, constraints) {
+            if (constraints.maxWidth < 600) {
+              return BottomNavigationBar(
+                currentIndex: _selectedIndex.clamp(0, 3),
+                onTap: (index) {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+                type: BottomNavigationBarType.fixed,
+                selectedItemColor: Colors.blue[700],
+                unselectedItemColor: Colors.grey,
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.dashboard),
+                    label: 'Dashboard',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.analytics),
+                    label: 'Analytics',
+                  ),
+
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.shopping_bag),
+                    label: 'Products',
+                  ),
+
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.more_horiz),
+                    label: 'More',
+                  ),
+                ],
+              );
+            }
+            return SizedBox.shrink();
+          },
+        ),
+        floatingActionButton: _selectedIndex == 0
+            ? FloatingActionButton.extended(
+                onPressed: () {},
+                label: Text("Novo Pedido"),
+                icon: Icon(Icons.add),
+                backgroundColor: Colors.blue[700],
+              )
+            : null,
+      ),
     );
   }
 
@@ -135,9 +185,82 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
             accountName: Text('Manuel Cardoso'),
             accountEmail: Text("manuelcardoso@gmail.com"),
+            currentAccountPicture: CircleAvatar(
+              backgroundImage: NetworkImage(
+                'https://i.ibb.co/8gzs7C4g/woman.png',
+              ),
+            ),
+          ),
+          // Lista de páginas do menu
+          Expanded(
+            child: ListView.builder(
+              itemCount: _pages.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  leading: Icon(_getIcon(index)),
+                  title: Text(_pages[index]),
+                  selected: _selectedIndex == index,
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = index;
+                    });
+                    Navigator.pop(context);
+                  },
+                );
+              },
+            ),
+          ),
+          Divider(),
+          SwitchListTile(
+            title: Text('Dark Mode'),
+            secondary: Icon(Icons.dark_mode),
+            value: _isDarkMode,
+            onChanged: (value) {
+              setState(() {
+                _isDarkMode = value;
+              });
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('Sair'),
+            onTap: () {},
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildDefaultScreen() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.construction,
+            size: 100,
+            color: Theme.of(context).primaryColor,
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Oagina em construção',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  IconData _getIcon(int index) {
+    final icons = [
+      Icons.dashboard,
+      Icons.analytics,
+      Icons.shopping_bag,
+      Icons.receipt_long,
+      Icons.people,
+      Icons.settings,
+      Icons.person,
+    ];
+    return icons[index];
   }
 }
