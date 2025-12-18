@@ -116,8 +116,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: _isDarkMode
-                            ? [Colors.grey[900]!, Colors.grey[850]!]
-                            : [Colors.blue[900]!, Colors.blue[750]!],
+                            ? [Colors.grey[900]!, Colors.grey[800]!]
+                            : [Colors.blue[900]!, Colors.blue[700]!],
                       ),
                     ),
                     child: _buildSideNavigation(isDesktop),
@@ -260,7 +260,71 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           Text('Admn', style: TextStyle(color: Colors.white70, fontSize: 12)),
         ],
+        SizedBox(height: 40),
+        Expanded(
+          child: ListView.builder(
+            itemCount: pages.length,
+            itemBuilder: (context, index) {
+              return _buildNavItem(
+                icon: _getIcon(index),
+                label: pages[index],
+                isSelected: _selectedIndex == index,
+                isDesktop: isDesktop,
+                onTap: () {
+                  setState(() {
+                    _selectedIndex = index;
+                  });
+                },
+              );
+            },
+          ),
+        ),
+        Divider(color: Colors.white24),
+        _buildNavItem(
+          icon: Icons.settings,
+          label: 'Settings',
+          isSelected: false,
+          isDesktop: isDesktop,
+          onTap: () {},
+        ),
       ],
+    );
+  }
+
+  Widget _buildNavItem({
+    required IconData icon,
+    required String label,
+    required bool isSelected,
+    required bool isDesktop,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+        padding: EdgeInsets.symmetric(
+          vertical: isDesktop ? 16 : 8,
+          horizontal: 12,
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.white, size: 24),
+            if (isDesktop) ...[
+              SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.normal,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
     );
   }
 
@@ -276,7 +340,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
           SizedBox(height: 20),
           Text(
-            'Oagina em construção',
+            'Pagina em construção',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
         ],
