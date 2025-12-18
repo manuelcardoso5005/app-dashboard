@@ -1,3 +1,4 @@
+import 'package:app/data/get_item.dart';
 import 'package:app/models/chart_model.dart';
 import 'package:app/models/product.dart';
 import 'package:app/models/recent_activity.dart';
@@ -122,6 +123,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     child: _buildSideNavigation(isDesktop),
                   ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      _buildAppBar(isMobile, isTablet, isDesktop),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.all(isMobile ? 12 : 24),
+                          child: _buildPageContent(
+                            isMobile,
+                            isTablet,
+                            isDesktop,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             );
           },
@@ -201,7 +219,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               itemCount: pages.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: Icon(_getIcon(index)),
+                  leading: Icon(getIcon(index)),
                   title: Text(pages[index]),
                   selected: _selectedIndex == index,
                   onTap: () {
@@ -266,7 +284,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             itemCount: pages.length,
             itemBuilder: (context, index) {
               return _buildNavItem(
-                icon: _getIcon(index),
+                icon: getIcon(index),
                 label: pages[index],
                 isSelected: _selectedIndex == index,
                 isDesktop: isDesktop,
@@ -328,27 +346,232 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDefaultScreen() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildAppBar(bool isMobile, bool isTablet, bool isDesktop) {
+    return Container(
+      height: 70,
+      padding: EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        color: _isDarkMode ? Colors.grey[800] : Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.white.withOpacity(0.05),
+            blurRadius: 4,
+            offset: Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
         children: [
-          Icon(
-            Icons.construction,
-            size: 100,
-            color: Theme.of(context).primaryColor,
+          if (isMobile)
+            IconButton(
+              icon: Icon(Icons.menu),
+              onPressed: () {
+                _scaffoldKey.currentState?.openDrawer();
+              },
+            ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  pages[_selectedIndex],
+                  style: TextStyle(
+                    fontSize: isMobile ? 20 : 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Welcome Back, Manuel Cardoso',
+                  style: TextStyle(
+                    fontSize: isMobile ? 12 : 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 20),
-          Text(
-            'Pagina em construção',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          if (!isMobile) ...[
+            Container(
+              width: isDesktop ? 300 : 200,
+              height: 40,
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Pesquisar',
+                  prefixIcon: Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20),
+                    borderSide: BorderSide.none,
+                  ),
+                  filled: true,
+                  fillColor: _isDarkMode ? Colors.grey[800] : Colors.white,
+                ),
+              ),
+            ),
+            SizedBox(width: 16),
+          ],
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.notifications_outlined),
           ),
+          SizedBox(width: 8),
+          IconButton(
+            onPressed: () {
+              setState(() {
+                _isDarkMode = !_isDarkMode;
+              });
+            },
+            icon: Icon(_isDarkMode ? Icons.light_mode : Icons.dark_mode),
+          ),
+          if (!isMobile) ...[
+            SizedBox(width: 16),
+            CircleAvatar(
+              radius: 18,
+              backgroundImage: NetworkImage(
+                'https://i.ibb.co/8gzs7C4g/woman.png',
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 
-  IconData _getIcon(int index) {
+  Widget _buildPageContent(bool isMobile, bool isTablet, bool isDesktop) {
+    switch (_selectedIndex) {
+      case 0:
+        return _buildDashboardScreen(isMobile, isTablet, isDesktop);
+      case 1:
+        return _buildDefaultScreen();
+      case 2:
+        return _buildDefaultScreen();
+      default:
+        return _buildDefaultScreen();
+    }
+  }
+
+  Widget _buildDashboardScreen(bool isMobile, bool isTablet, bool isDesktop) {
+    int crossAxisCount = isMobile ? 2 : (isTablet ? 3 : 4);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GridView.count(
+          crossAxisCount: crossAxisCount,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: isMobile ? 1.2 : 1.4,
+          children: [
+            _buildStateCard(
+              'Total de Vendas',
+              '\$ 25.000',
+              Icons.shopping_cart,
+              Colors.blue,
+              '+5.4',
+            ),
+            _buildStateCard(
+              'Pedidos',
+              '1.245',
+              Icons.receipt_long,
+              Colors.orange,
+              '+5.4',
+            ),
+            _buildStateCard(
+              'Clientes',
+              '980',
+              Icons.people,
+              Colors.green,
+              '+5.4',
+            ),
+            _buildStateCard(
+              'Receita',
+              '\$ 18.400',
+              Icons.attach_money,
+              Colors.purple,
+              '+5.4',
+            ),
+          ],
+        ),
+        SizedBox(height: 24),
+      ],
+    );
+  }
+
+  /*Widget _buildAnalyticsScreen (){
+
+  }*/
+
+  Widget _buildStateCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+    String change,
+  ) {
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundColor: color.withOpacity(0.1),
+              child: Icon(icon, color: color),
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    value,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+            ),
+            Text(
+              change,
+              style: TextStyle(
+                color: change.startsWith('+') ? Colors.green : Colors.red,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDefaultScreen() {
+    return Container(
+      color: Colors.red,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.construction,
+              size: 100,
+              color: Theme.of(context).primaryColor,
+            ),
+            SizedBox(height: 20),
+            Text(
+              'Pagina em construção',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /*IconData _getIcon(int index) {
     final icons = [
       Icons.dashboard,
       Icons.analytics,
@@ -359,5 +582,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
       Icons.person,
     ];
     return icons[index];
-  }
+  }*/
 }
