@@ -2,6 +2,7 @@ import 'package:app/data/get_item.dart';
 import 'package:app/models/chart_model.dart';
 import 'package:app/models/product.dart';
 import 'package:app/models/recent_activity.dart';
+import 'package:app/widgets/charts/chart_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:app/data/pages.dart';
 import 'package:flutter/rendering.dart';
@@ -128,12 +129,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       _buildAppBar(isMobile, isTablet, isDesktop),
                       Expanded(
-                        child: SingleChildScrollView(
-                          padding: EdgeInsets.all(isMobile ? 12 : 24),
-                          child: _buildPageContent(
-                            isMobile,
-                            isTablet,
-                            isDesktop,
+                        child: Container(
+                          color: _isDarkMode
+                              ? Colors.grey[800]
+                              : Colors.grey[100],
+                          child: SingleChildScrollView(
+                            padding: EdgeInsets.all(isMobile ? 12 : 24),
+                            child: _buildPageContent(
+                              isMobile,
+                              isTablet,
+                              isDesktop,
+                            ),
                           ),
                         ),
                       ),
@@ -450,6 +456,90 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Widget _buildRevenueChart(bool isMobile, bool isTablet, bool isDesktop) {
+    return Container(
+      padding: EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: _isDarkMode ? Colors.grey[800] : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: _isDarkMode
+                ? Colors.black.withOpacity(0.1)
+                : Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Revenue Chart',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 20),
+          Container(
+            height: isMobile ? 200 : 300,
+            child: Center(
+              child: CustomPaint(
+                painter: ChartPainter(_chartData),
+                child: Container(),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecentActivites() {
+    return Container(
+      decoration: BoxDecoration(
+        color: _isDarkMode ? Colors.grey[800] : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: _isDarkMode
+                ? Colors.black.withOpacity(0.3)
+                : Colors.grey.withOpacity(0.3),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Actividade recente',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 18),
+          ..._recentActivites.map((act) {
+            return Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: act.color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Icon(act.icon, color: act.color, size: 20),
+                  ),
+                  SizedBox(width: 12),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _buildDashboardScreen(bool isMobile, bool isTablet, bool isDesktop) {
     int crossAxisCount = isMobile ? 2 : (isTablet ? 3 : 4);
     return Column(
@@ -461,7 +551,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
           physics: NeverScrollableScrollPhysics(),
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
-          childAspectRatio: isMobile ? 1.2 : 1.4,
+          childAspectRatio: isMobile
+              ? 1.2
+              : isTablet
+              ? 1.5
+              : 1.7,
           children: [
             _buildStateCard(
               'Total de Vendas',
@@ -469,31 +563,47 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Icons.shopping_cart,
               Colors.blue,
               '+5.4',
+              _isDarkMode,
             ),
             _buildStateCard(
               'Pedidos',
-              '1.245',
+              '\$1.245',
               Icons.receipt_long,
               Colors.orange,
-              '+5.4',
+              '-1.4',
+              _isDarkMode,
             ),
             _buildStateCard(
               'Clientes',
-              '980',
+              '\$980',
               Icons.people,
               Colors.green,
               '+5.4',
+              _isDarkMode,
             ),
             _buildStateCard(
               'Receita',
               '\$ 18.400',
               Icons.attach_money,
               Colors.purple,
-              '+5.4',
+              '-2.4',
+              _isDarkMode,
             ),
           ],
         ),
         SizedBox(height: 24),
+        if (isDesktop)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 2,
+                child: _buildRevenueChart(isMobile, isTablet, isDesktop),
+              ),
+              SizedBox(width: 16),
+              Expanded(flex: 1, child: _buildRecentActivites()),
+            ],
+          ),
       ],
     );
   }
@@ -508,39 +618,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
     IconData icon,
     Color color,
     String change,
+    bool isDarkMode,
   ) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800] : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: isDarkMode
+                ? Colors.black.withOpacity(0.2)
+                : Colors.grey.withOpacity(0.2),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
       child: Padding(
         padding: EdgeInsets.all(16),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              backgroundColor: color.withOpacity(0.1),
-              child: Icon(icon, color: color),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  SizedBox(height: 8),
-                  Text(
-                    value,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                Text(
+                  change,
+                  style: TextStyle(
+                    color: change.startsWith('+') ? Colors.green : Colors.red,
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+            Spacer(),
             Text(
-              change,
-              style: TextStyle(
-                color: change.startsWith('+') ? Colors.green : Colors.red,
-                fontWeight: FontWeight.bold,
-              ),
+              value,
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 4),
+            Text(
+              title,
+              style: TextStyle(color: Colors.grey[600], fontSize: 12),
             ),
           ],
         ),
@@ -570,17 +698,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-  /*IconData _getIcon(int index) {
-    final icons = [
-      Icons.dashboard,
-      Icons.analytics,
-      Icons.shopping_bag,
-      Icons.receipt_long,
-      Icons.people,
-      Icons.settings,
-      Icons.person,
-    ];
-    return icons[index];
-  }*/
 }
