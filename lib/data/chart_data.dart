@@ -1,6 +1,6 @@
 import 'package:app/models/chart_model.dart';
 
-final List<ChartData> _chartData = [
+final List<ChartData> chartData = [
   ChartData('Seg', 45, 30),
   ChartData('Ter', 56, 40),
   ChartData('Qua', 55, 35),

@@ -1,18 +1,12 @@
 import 'package:app/data/get_item.dart';
 import 'package:app/data/weekly_chart_data.dart';
-import 'package:app/models/chart_model.dart';
-import 'package:app/models/product.dart';
-import 'package:app/models/recent_activity.dart';
 import 'package:app/widgets/charts/chart_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:app/data/pages.dart';
-//import 'package:flutter/rendering.dart';
 import 'package:app/data/recent_activity_data.dart';
 import 'package:app/data/top_products_data.dart';
 import 'package:app/widgets/default_screen.dart';
 import 'package:app/widgets/top_products_card.dart';
-//import 'package:app/data/top_products_data.dart';
-//import 'package:flutter/rendering.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -142,8 +136,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 colors: [Colors.blue[900]!, Colors.blue[700]!],
               ),
             ),
-            accountName: Text('Manuel Cardoso'),
-            accountEmail: Text("manuelcardoso@gmail.com"),
+            accountName: Text('Fulana de Tal'),
+            accountEmail: Text("fulana@gmail.com"),
             currentAccountPicture: CircleAvatar(
               backgroundImage: NetworkImage(
                 'https://i.ibb.co/8gzs7C4g/woman.png',
@@ -206,7 +200,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         if (isDesktop) ...[
           SizedBox(height: 10),
           Text(
-            'Manuel Cardoso',
+            'Fulana de Tal',
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -291,7 +285,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         color: _isDarkMode ? Colors.grey[800] : Colors.white,
         boxShadow: [
           BoxShadow(
-            color: Colors.white.withOpacity(0.05),
+            color: Colors.white.withAlpha((0.05 * 255).round()),
             blurRadius: 4,
             offset: Offset(0, 2),
           ),
@@ -319,7 +313,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ),
                 ),
                 Text(
-                  'Welcome Back, Manuel Cardoso',
+                  'Bem-vindo(a) de volta, Fulana de Tal',
                   style: TextStyle(
                     fontSize: isMobile ? 12 : 14,
                     color: Colors.grey[600],
@@ -553,7 +547,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                 flex: 2,
-                child: _buildRevenueChart(isMobile, isTablet, isDesktop),
+                child: Column(
+                  children: [
+                    _buildRevenueChart(isMobile, isTablet, isDesktop),
+                    SizedBox(height: 16),
+                    TopProductsCard(
+                      isDarkMode: _isDarkMode,
+                      products: topProducts,
+                    ),
+                  ],
+                ),
               ),
               SizedBox(width: 16),
               Expanded(flex: 1, child: _buildRecentActivites()),
@@ -569,10 +572,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ],
     );
   }
-
-  /*Widget _buildAnalyticsScreen (){
-
-  }*/
 
   Widget _buildStateCard(
     String title,
@@ -637,76 +636,4 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-
-  /*
-  Widget _buildTopProduct(bool isMobile, bool isTablet, bool isDesktop) {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: _isDarkMode ? Colors.grey[800] : Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: _isDarkMode
-                ? Colors.black.withOpacity(0.1)
-                : Colors.grey.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Top Products',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              children: topProducts.map((product) {
-                return Container(
-                  width: 150,
-                  margin: EdgeInsets.only(right: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          product.image,
-                          height: 100,
-                          width: 150,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        product.name,
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        product.price,
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        '${product.sales} Vendas',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                      ),
-                    ],
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-        ],
-      ),
-    );
-  }*/
 }

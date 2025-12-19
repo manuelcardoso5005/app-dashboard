@@ -1,9 +1,9 @@
 const List<String> pages = [
   'Dashboard',
-  'Analytics',
-  'Products',
-  'Orders',
-  'Customers',
-  'Settings',
-  'Profile',
+  'Análise',
+  'Produtos',
+  'Pedidos',
+  'Clientes',
+  'Definições',
+  'Perfil',
 ];
