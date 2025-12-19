@@ -1,11 +1,17 @@
 import 'package:app/data/get_item.dart';
+import 'package:app/data/weekly_chart_data.dart';
 import 'package:app/models/chart_model.dart';
 import 'package:app/models/product.dart';
 import 'package:app/models/recent_activity.dart';
 import 'package:app/widgets/charts/chart_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:app/data/pages.dart';
-import 'package:flutter/rendering.dart';
+//import 'package:flutter/rendering.dart';
+import 'package:app/data/recent_activity_data.dart';
+import 'package:app/data/top_products_data.dart';
+import 'package:app/widgets/default_screen.dart';
+import 'package:app/widgets/top_products_card.dart';
+//import 'package:app/data/top_products_data.dart';
 //import 'package:flutter/rendering.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -19,81 +25,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
   int _selectedIndex = 0;
   bool _isDarkMode = false;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  final List<ChartData> _chartData = [
-    ChartData('Seg', 45, 30),
-    ChartData('Ter', 56, 40),
-    ChartData('Qua', 55, 35),
-    ChartData('Qui', 60, 50),
-    ChartData('Sex', 61, 60),
-    ChartData('Sab', 70, 65),
-    ChartData('Dom', 75, 70),
-  ];
-
-  final List<RecentActivity> _recentActivites = [
-    RecentActivity(
-      'Novo Pedido Recebido',
-      '#ORD-12345',
-      '2 min atrás',
-      Icons.shopping_cart,
-      Colors.blue,
-    ),
-    RecentActivity(
-      'Pagamento Confirmado',
-      '#PAY-98765',
-      '10 min atrás',
-      Icons.check_circle,
-      Colors.green,
-    ),
-    RecentActivity(
-      'Pedido Enviado',
-      '#ORD-12344',
-      '1 hora atrás',
-      Icons.local_shipping,
-      Colors.orange,
-    ),
-    RecentActivity(
-      'Cliente Registrado',
-      '#USR-54321',
-      '3 horas atrás',
-      Icons.person_add,
-      Colors.purple,
-    ),
-    RecentActivity(
-      'Produto Atualizado',
-      '#PRD-67890',
-      'Ontem',
-      Icons.update,
-      Colors.teal,
-    ),
-  ];
-
-  final List<Product> _topProduct = [
-    Product(
-      'iPhone 12',
-      '\$ 999',
-      150,
-      'https://loja.iservices.pt/10628-large_default/iphone-12.jpg',
-    ),
-    Product(
-      'Samsung Galaxy S21',
-      '\$ 899',
-      120,
-      'https://image.coolblue.be/max/394xauto/products/1857219',
-    ),
-    Product(
-      'MacBook Air M1',
-      '\$ 1199',
-      80,
-      'https://cdsassets.apple.com/live/SZLF0YNV/images/sp/111883_macbookair.png',
-    ),
-    Product(
-      'Apple Watch Series 6',
-      '\$ 399',
-      200,
-      'https://cdn11.bigcommerce.com/s-ilhtqzrn07/images/stencil/1280x1280/products/731/983/watch540__16988.1571652005.1280.1280__62666.1602607987.jpg?c=1',
-    ),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -448,11 +379,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 0:
         return _buildDashboardScreen(isMobile, isTablet, isDesktop);
       case 1:
-        return _buildDefaultScreen();
+        return DefaultScreen();
       case 2:
-        return _buildDefaultScreen();
+        return DefaultScreen();
       default:
-        return _buildDefaultScreen();
+        return DefaultScreen();
     }
   }
 
@@ -484,7 +415,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             height: isMobile ? 200 : 300,
             child: Center(
               child: CustomPaint(
-                painter: ChartPainter(_chartData),
+                painter: ChartPainter(weeklyChartData),
                 child: Container(),
               ),
             ),
@@ -496,6 +427,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildRecentActivites() {
     return Container(
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: _isDarkMode ? Colors.grey[800] : Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -517,7 +449,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 18),
-          ..._recentActivites.map((act) {
+          ...recentActivities.map((act) {
             return Padding(
               padding: EdgeInsets.only(bottom: 16),
               child: Row(
@@ -531,10 +463,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     child: Icon(act.icon, color: act.color, size: 20),
                   ),
                   SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          act.title,
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          act.subtitle,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    act.time,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  ),
                 ],
               ),
             );
-          }),
+          }).toList(),
         ],
       ),
     );
@@ -603,7 +558,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
               SizedBox(width: 16),
               Expanded(flex: 1, child: _buildRecentActivites()),
             ],
-          ),
+          )
+        else ...[
+          _buildRevenueChart(isMobile, isTablet, isDesktop),
+          SizedBox(height: 16),
+          _buildRecentActivites(),
+          SizedBox(height: 24),
+          TopProductsCard(isDarkMode: _isDarkMode, products: topProducts),
+        ],
       ],
     );
   }
@@ -676,26 +638,75 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildDefaultScreen() {
+  /*
+  Widget _buildTopProduct(bool isMobile, bool isTablet, bool isDesktop) {
     return Container(
-      color: Colors.red,
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.construction,
-              size: 100,
-              color: Theme.of(context).primaryColor,
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _isDarkMode ? Colors.grey[800] : Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: _isDarkMode
+                ? Colors.black.withOpacity(0.1)
+                : Colors.grey.withOpacity(0.1),
+            blurRadius: 10,
+            offset: Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Top Products',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(height: 16),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: topProducts.map((product) {
+                return Container(
+                  width: 150,
+                  margin: EdgeInsets.only(right: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          product.image,
+                          height: 100,
+                          width: 150,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        product.name,
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        product.price,
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                      SizedBox(height: 4),
+                      Text(
+                        '${product.sales} Vendas',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
             ),
-            SizedBox(height: 20),
-            Text(
-              'Pagina em construção',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
+  }*/
 }
